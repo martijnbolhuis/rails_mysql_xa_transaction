@@ -1,5 +1,6 @@
 require 'active_record_extensions'
 module MysqlXaTransaction
+  
   class XATransaction
     def initialize model_list=[]
       generate_id

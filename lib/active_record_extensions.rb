@@ -33,12 +33,15 @@ module XaTransaction
     @xa_state.present? && @xa_state != :none
   end
 
+  def xa_transaction_successful?
+    @xa_state.present? && @xa_state == :commit
+  end
   def begin_xa_transaction id
     @xa_state = :none
     begin
       execute "XA START '#{id}'"
     rescue
-      raise "Error"
+      raise "Could not begin a XA transaction on #{connection_config[:host]}"
     else
       @xa_state = :begin
     end
@@ -68,9 +71,9 @@ module XaTransaction
     begin
       execute "XA COMMIT '#{id}'"
     rescue
-      raise "Atomicity of XA transaction violated"
+      raise "Atomicity of XA transaction violated!!! Could not commit on #{connection_config[:host]}"
     else
-      @xa_state = :none
+      @xa_state = :commit
     end
   end
 
@@ -79,9 +82,9 @@ module XaTransaction
       end_xa_transaction id if @xa_state == :begin
       execute "XA ROLLBACK '#{id}'" if @xa_state == :end
     rescue
-      raise "Error"
+      raise "Could not end a XA transaction on #{connection_config[:host]}"
     else
-      @xa_state = :none
+      @xa_state = :rollback
     end
   end
 
@@ -92,6 +95,10 @@ module XaTransaction
 
   def commit_db_transaction
     original_commit_db_transaction unless xa_transaction_in_progress?
+  end
+
+  def rollback_db_transaction
+    original_rollback_db_transaction unless xa_transaction_in_progress?
   end
 end
 

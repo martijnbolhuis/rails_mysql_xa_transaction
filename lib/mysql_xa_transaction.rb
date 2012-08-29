@@ -20,7 +20,9 @@ module MysqlXaTransaction
       else
         connection_list_do :commit_xa_transaction
       end
+      connection_list_check
     end
+
     protected
       def generate_id
         @id = (0...8).map{65.+(rand(25)).chr}.join
@@ -34,6 +36,10 @@ module MysqlXaTransaction
 
       def connection_list_do method_symbol
         @connection_list.each {|c| c.send(method_symbol, @id)}
+      end
+
+      def connection_list_check method_symbol=:xa_transaction_successful?
+        @connection_list.map{|c| c.send(method_symbol)}.select {|b| !b}.empty?
       end
   end
 end

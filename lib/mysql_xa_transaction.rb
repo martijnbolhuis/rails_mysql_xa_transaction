@@ -1,6 +1,8 @@
-# require 'mysql_xa_transaction/railtie.rb'
+if defined?(::Rails::Railtie)
+  require 'mysql_xa_transaction/railtie.rb'
+end
+
 module MysqlXaTransaction
-  
   class XATransaction
     def initialize model_list=[]
       generate_id
@@ -19,8 +21,6 @@ module MysqlXaTransaction
         connection_list_do :commit_xa_transaction
       end
     end
-    
-
     protected
       def generate_id
         @id = (0...8).map{65.+(rand(25)).chr}.join

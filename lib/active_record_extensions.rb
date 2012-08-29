@@ -34,15 +34,6 @@ module XaTransaction
     @xa_state.present? && @xa_state != :none
   end
 
-  def begin_db_transaction
-    # super unless xa_transaction_in_progress
-    raise "blablba"
-  end
-
-  def commit_db_transaction
-    super unless xa_transaction_in_progress
-  end
-
   def begin_xa_transaction id
     @xa_state = :none
     begin
@@ -94,6 +85,11 @@ module XaTransaction
       @xa_state = :none
     end
   end
+  
+  def begin_db_transaction
+  end
+  def commit_db_transaction
+  end
 end
 
 
@@ -102,5 +98,23 @@ module ActiveRecord
     class AbstractMysqlAdapter < AbstractAdapter
       include XaTransaction
     end
+
+    # class Mysql2Adapter < AbstractMysqlAdapter
+    #   # alias :old_begin_db_transaction, :begin_db_transaction
+    #   # alias :old_commit_db_transaction, :commit_db_transaction
+
+    #   def begin_db_transaction
+    #     # super unless xa_transaction_in_progress
+    #     raise "blablba"
+    #   end
+
+    #   def commit_db_transaction
+    #     raise 'dfdsfdf'
+    #   end
+    # end
   end
 end
+
+ActiveRecord::ConnectionAdapters::Mysql2Adapter.class_eval do
+end
+

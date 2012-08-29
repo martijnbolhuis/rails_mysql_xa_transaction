@@ -1,4 +1,4 @@
-require 'active_record_extensions'
+# require 'mysql_xa_transaction/railtie.rb'
 module MysqlXaTransaction
   
   class XATransaction

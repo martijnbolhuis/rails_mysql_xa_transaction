@@ -7,10 +7,10 @@ require "mysql_xa_transaction/version"
 Gem::Specification.new do |s|
   s.name        = "mysql_xa_transaction"
   s.version     = MysqlXaTransaction::VERSION
-  s.authors     = ["TODO: Your name"]
-  s.email       = ["TODO: Your email"]
+  s.authors     = ["Martijn Bolhuis"]
+  s.email       = ["gumbo.mcgee@gmail.com"]
   s.homepage    = "TODO"
-  s.summary     = "TODO: Summary of MysqlXaTransaction."
+  s.summary     = "Enable transactions over multiple MySql database connections (distributed XA transactions)"
   s.description = "TODO: Description of MysqlXaTransaction."
 
   s.files = Dir["{app,config,db,lib}/**/*"] + ["MIT-LICENSE", "Rakefile", "README.rdoc"]

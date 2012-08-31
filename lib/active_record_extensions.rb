@@ -29,19 +29,32 @@ module ActiveRecord
 end
 
 module XaTransaction
-  def xa_transaction_in_progress?
-    @xa_state.present? && @xa_state != :none
+  # def xa_transaction_in_progress?
+  #   @xa_state != :none
+  # end
+
+  def transaction_disabled?
+    @transaction_disabled or @xa_state != :none
+  end
+
+  def disable_transaction
+    @transaction_disabled = true
+  end
+
+  def enable_transaction
+    @transaction_disabled = false
   end
 
   def xa_transaction_successful?
-    @xa_state.present? && @xa_state == :commit
+    @xa_state == :commit
   end
   def begin_xa_transaction id
     @xa_state = :none
+    # debugger
     begin
       execute "XA START '#{id}'"
     rescue
-      raise "Could not begin a XA transaction on #{connection_config[:host]}"
+      raise "Could not begin a XA transaction"
     else
       @xa_state = :begin
     end
@@ -71,7 +84,7 @@ module XaTransaction
     begin
       execute "XA COMMIT '#{id}'"
     rescue
-      raise "Atomicity of XA transaction violated!!! Could not commit on #{connection_config[:host]}"
+      raise "Atomicity of XA transaction violated!!!"
     else
       @xa_state = :commit
     end
@@ -82,7 +95,7 @@ module XaTransaction
       end_xa_transaction id if @xa_state == :begin
       execute "XA ROLLBACK '#{id}'" if @xa_state == :end
     rescue
-      raise "Could not end a XA transaction on #{connection_config[:host]}"
+      raise "Could not end a XA transaction"
     else
       @xa_state = :rollback
     end
@@ -90,15 +103,15 @@ module XaTransaction
 
 # The following methods override existing methods
   def begin_db_transaction
-    original_begin_db_transaction unless xa_transaction_in_progress?
+    original_begin_db_transaction unless transaction_disabled?
   end
 
   def commit_db_transaction
-    original_commit_db_transaction unless xa_transaction_in_progress?
+    original_commit_db_transaction unless transaction_disabled?
   end
 
   def rollback_db_transaction
-    original_rollback_db_transaction unless xa_transaction_in_progress?
+    original_rollback_db_transaction unless transaction_disabled?
   end
 end
 

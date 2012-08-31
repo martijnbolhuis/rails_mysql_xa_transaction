@@ -2,10 +2,18 @@ if defined?(::Rails::Railtie)
   require 'mysql_xa_transaction/railtie.rb'
 end
 
-module MysqlXaTransaction
+module XATransaction
+  def self.XATransaction model_list=[], &block
+    t = XATransaction.new model_list
+    t.start {yield}  
+  end
+
   class XATransaction
     def initialize model_list=[]
       generate_id
+
+      # Get all models in the project if no models names are supplied
+      model_list = get_project_models if model_list.empty?
       get_db_connections model_list
     end
 
@@ -24,13 +32,18 @@ module MysqlXaTransaction
     end
 
     protected
+
+      def get_project_models
+        ActiveRecord::Base.connection.tables.collect{|t| eval(t.underscore.singularize.camelize) unless t == "schema_migrations"}.compact
+      end
+
       def generate_id
         @id = (0...8).map{65.+(rand(25)).chr}.join
       end
 
       def get_db_connections model_list
         @connection_list = []
-        model_list.each {|m| @connection_list << m.connection unless @connection_list.include?(m.connection)}
+        model_list.each {|m| @connection_list << m.connection if m.connection.respond_to?(:begin_xa_transaction) unless @connection_list.include?(m.connection)}
         @connection_list
       end
 

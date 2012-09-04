@@ -48,6 +48,7 @@ module XaTransaction
   def xa_transaction_successful?
     @xa_state == :commit
   end
+  
   def begin_xa_transaction id
     @xa_state = :none
     # debugger
@@ -95,7 +96,7 @@ module XaTransaction
       end_xa_transaction id if @xa_state == :begin
       execute "XA ROLLBACK '#{id}'" if @xa_state == :end
     rescue
-      raise "Could not end a XA transaction"
+      # raise "Could not end a XA transaction"
     else
       @xa_state = :rollback
     end

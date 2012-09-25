@@ -27,6 +27,8 @@ module XATransactionCoordinator
         connection_list_do :rollback_xa_transaction
       else
         connection_list_do :commit_xa_transaction
+      ensure
+        @connection_list.each {|c| ActiveRecord::Base.connection_pool.checkin c }
       end
       connection_list_check
     end
@@ -43,7 +45,7 @@ module XATransactionCoordinator
 
       def get_db_connections model_list
         @connection_list = []
-        model_list.each {|m| @connection_list << m.connection if m.connection.respond_to?(:begin_xa_transaction) unless @connection_list.include?(m.connection)}
+        model_list.each {|m| @connection_list << m.connection_pool.checkout if m.connection.respond_to?(:begin_xa_transaction) unless @connection_list.include?(m.connection)}
         @connection_list
       end
 

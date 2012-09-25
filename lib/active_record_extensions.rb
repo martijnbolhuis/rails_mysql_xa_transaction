@@ -68,22 +68,30 @@ module XaTransaction
 
   def commit_xa_transaction id
     begin
+      Rails.logger.info "XATransaction - Before commit. Global ID: #{id} Database: #{@config[:host]} #{@config[:database]}"
+      @xa_state = :before_commit
       execute "XA COMMIT '#{id}'"
     rescue
-      raise "Atomicity of XA transaction violated!!!"
+      Rails.logger.warn "XATransaction - Failed commit. Global ID: #{id} Database: #{@config[:host]} #{@config[:database]}"
     else
       @xa_state = :commit
+      Rails.logger.info"XATransaction - After commit. Global ID: #{id} Database: #{@config[:host]} #{@config[:database]}"
     end
   end
 
   def rollback_xa_transaction id
     begin
       end_xa_transaction id if @xa_state == :begin
-      execute "XA ROLLBACK '#{id}'" if @xa_state == :end
+      if @xa_state == :end
+        Rails.logger.info "XATransaction - Before rollback. Global ID: #{id} Database: #{@config[:host]} #{@config[:database]}"
+        @xa_state = :before_rollback
+        execute "XA ROLLBACK '#{id}'"
+      end 
     rescue
-      # raise "Could not end a XA transaction"
+      Rails.logger.warn "XATransaction - Rollback failed. Global ID: #{id} Database: #{@config[:host]} #{@config[:database]}"
     else
       @xa_state = :rollback
+      Rails.logger.info "XATransaction - After rollback. Global ID: #{id} Database: #{@config[:host]} #{@config[:database]}"
     end
   end
 

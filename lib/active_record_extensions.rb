@@ -51,34 +51,19 @@ module XaTransaction
   
   def begin_xa_transaction id
     @xa_state = :none
-    # debugger
-    begin
-      execute "XA START '#{id}'"
-    rescue
-      raise "Could not begin a XA transaction"
-    else
-      @xa_state = :begin
-    end
+    execute "XA START '#{id}'"
+    @xa_state = :begin
+    
   end
 
   def end_xa_transaction id
-    begin
-      execute "XA END '#{id}'"
-    rescue
-      raise "Error"
-    else
-      @xa_state = :end
-    end
+    execute "XA END '#{id}'"
+    @xa_state = :end
   end
   
   def prepare_xa_transaction id
-    begin
-      execute "XA PREPARE '#{id}'"
-    rescue
-      raise "Error"
-    else
-      @xa_state = :prepare
-    end     
+    execute "XA PREPARE '#{id}'"
+    @xa_state = :prepare  
   end
 
   def commit_xa_transaction id

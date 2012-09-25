@@ -2,7 +2,7 @@ if defined?(::Rails::Railtie)
   require 'mysql_xa_transaction/railtie.rb'
 end
 
-module XATransaction
+module XATransactionCoordinator
   def self.XATransaction model_list=[], &block
     t = XATransaction.new model_list
     t.start {yield}  

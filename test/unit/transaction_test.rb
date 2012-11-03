@@ -39,14 +39,14 @@ class TransactionTest < ActiveSupport::TestCase
   test "MySQL is shutdown during the transaction" do
     start_and_check_mysql
 
-      result = XATransactionCoordinator.XATransaction [KlmTicket, AirFranceTicket] do
+      @result = XATransactionCoordinator.XATransaction [KlmTicket, AirFranceTicket] do
         @klm_ticket.save!
         stop_and_check_mysql
         @air_france_ticket.save!
       end
 
     start_and_check_mysql
-    # The followin command will reopen the database connection
+    # The following command will reopen the database connection
     ActiveRecord::Base.verify_active_connections!
     assert_failed_transaction
   end
@@ -56,7 +56,7 @@ class TransactionTest < ActiveSupport::TestCase
     # Create a ticket with an invalid flightnumber
     @klm_ticket = create_klm_ticket flightnumber: 'ABC 3674'
 
-    result = XATransactionCoordinator.XATransaction [KlmTicket, AirFranceTicket] do
+    @result = XATransactionCoordinator.XATransaction [KlmTicket, AirFranceTicket] do
       @klm_ticket.save!
       @air_france_ticket.save!
     end

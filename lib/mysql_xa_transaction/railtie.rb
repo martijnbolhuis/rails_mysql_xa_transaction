@@ -10,6 +10,9 @@ class MysqlXARailtie < Rails::Railtie
       alias_method :original_begin_db_transaction, :begin_db_transaction
       alias_method :original_commit_db_transaction, :commit_db_transaction
       alias_method :original_rollback_db_transaction, :rollback_db_transaction
+      alias_method :original_create_savepoint, :create_savepoint
+      alias_method :original_release_savepoint, :release_savepoint
+      alias_method :original_rollback_to_savepoint, :rollback_to_savepoint
       include XaTransaction
     end
   end

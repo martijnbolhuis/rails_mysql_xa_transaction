@@ -4,8 +4,13 @@ end
 
 module XATransactionCoordinator
   def self.XATransaction model_list=[], &block
-    t = XATransaction.new model_list
-    t.start {yield}  
+    begin
+      t = XATransaction.new model_list
+    rescue
+      false
+    else
+      t.start {yield}  
+    end
   end
 
   class XATransaction

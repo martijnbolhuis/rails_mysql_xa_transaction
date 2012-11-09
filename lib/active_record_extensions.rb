@@ -48,7 +48,8 @@ module XaTransaction
   def xa_transaction_successful?
     @xa_state == :commit
   end
-  
+
+
   def begin_xa_transaction id
     @xa_state = :none
     execute "XA START '#{id}'"
@@ -87,8 +88,9 @@ module XaTransaction
         @xa_state = :before_rollback
         execute "XA ROLLBACK '#{id}'"
       end 
-    rescue
+    rescue => e
       Rails.logger.warn "XATransaction - Rollback failed. Global ID: #{id} Database: #{@config[:host]} #{@config[:database]}"
+      Rails.logger.warn e.inspect
     else
       @xa_state = :rollback
       Rails.logger.info "XATransaction - After rollback. Global ID: #{id} Database: #{@config[:host]} #{@config[:database]}"
@@ -106,6 +108,16 @@ module XaTransaction
 
   def rollback_db_transaction
     original_rollback_db_transaction unless transaction_disabled?
+  end
+  def create_savepoint
+    original_create_savepoint unless transaction_disabled?
+  end
+
+  def release_savepoint
+    original_release_savepoint unless transaction_disabled?    
+  end
+  def rollback_to_savepoint
+    original_rollback_to_savepoint unless transaction_disabled?
   end
 end
 

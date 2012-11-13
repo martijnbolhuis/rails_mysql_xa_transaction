@@ -7,16 +7,16 @@ require "mysql_xa_transaction/version"
 Gem::Specification.new do |s|
   s.name        = "mysql_xa_transaction"
   s.version     = MysqlXaTransaction::VERSION
-  s.authors     = ["TODO: Your name"]
-  s.email       = ["TODO: Your email"]
+  s.authors     = ["Martijn Bolhuis"]
+  s.email       = ["martijn.bolhuis@gmail.com"]
   s.homepage    = "TODO"
-  s.summary     = "TODO: Summary of MysqlXaTransaction."
-  s.description = "TODO: Description of MysqlXaTransaction."
+  s.summary     = "Enable transactions over multiple MySql database connections (distributed XA transactions)"
+  s.description = "Enable transactions over multiple MySql database connections (distributed XA transactions)"
 
-  s.files = Dir["{app,config,db,lib}/**/*"] + ["MIT-LICENSE", "Rakefile", "README.rdoc"]
+  s.files = Dir["{app,config,db,lib}/**/*"] + ["MIT-LICENSE", "Rakefile", "README.rdoc", "lib/mysql_xa_transaction/railtie.rb"]
   s.test_files = Dir["test/**/*"]
 
   s.add_dependency "rails", "~> 3.2.8"
 
-  s.add_development_dependency "sqlite3"
+  s.add_development_dependency "mysql2"
 end

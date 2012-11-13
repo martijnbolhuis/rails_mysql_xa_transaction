@@ -1,8 +1,8 @@
 # ruby -I"lib:test" test/unit/transaction_test.rb
 require 'test_helper'
 require 'rake'
-Rake::Task.clear # necessary to avoid tasks being loaded several times in dev mode
-XaTicketSystem::Application.load_tasks 
+Rake::Task.clear
+Dummy::Application.load_tasks 
 
 class TransactionTest < ActiveSupport::TestCase
 
@@ -25,7 +25,6 @@ class TransactionTest < ActiveSupport::TestCase
 
   test "MySQL is shutdown before transaction" do
     stop_and_check_mysql
-
     @result = XATransactionCoordinator.XATransaction [KlmTicket, AirFranceTicket] do
       @klm_ticket.save!
       @air_france_ticket.save!
@@ -46,8 +45,9 @@ class TransactionTest < ActiveSupport::TestCase
       end
 
     start_and_check_mysql
-    # The following command will reopen the database connection
+    # The followin command will reopen the database connection
     ActiveRecord::Base.verify_active_connections!
+    # debugger
     assert_failed_transaction
   end
 
@@ -56,7 +56,7 @@ class TransactionTest < ActiveSupport::TestCase
     # Create a ticket with an invalid flightnumber
     @klm_ticket = create_klm_ticket flightnumber: 'ABC 3674'
 
-    @result = XATransactionCoordinator.XATransaction [KlmTicket, AirFranceTicket] do
+    result = XATransactionCoordinator.XATransaction [KlmTicket, AirFranceTicket] do
       @klm_ticket.save!
       @air_france_ticket.save!
     end

@@ -29,10 +29,6 @@ module ActiveRecord
 end
 
 module XaTransaction
-  # def xa_transaction_in_progress?
-  #   @xa_state != :none
-  # end
-
   def transaction_disabled?
     @transaction_disabled or @xa_state != :none
   end

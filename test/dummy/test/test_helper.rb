@@ -37,6 +37,12 @@ class ActiveSupport::TestCase
     assert !mysql_server_running?, "MySQL server is running while it should not!"
   end
 
+  def crash_and_check_mysql
+    Rake::Task["mysql:crash"].invoke
+    sleep WAITING_TIME
+    assert !mysql_server_running?, "MySQL server is running while it should not!"
+  end
+
   def assert_failed_transaction
     assert !@result, 'The TM should indicate that the transaction has failed'
     # assert @klm_ticket.new_record? and @air_france_ticket.new_record?
@@ -46,7 +52,7 @@ class ActiveSupport::TestCase
 
   end
 
-  def assert_succesful_transaction
+  def assert_successful_transaction
     assert @result, 'The TM should indicate that the transaction is successful'
     assert KlmTicket.last == @klm_ticket, 'Last KLM ticket should match the created ticket'
     assert AirFranceTicket.last == @air_france_ticket, 'Last KLM ticket should match the created ticket'

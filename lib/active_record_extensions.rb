@@ -78,9 +78,9 @@ module XaTransaction
 
   def rollback_xa_transaction id
     begin
+      Rails.logger.info "XATransaction - Before rollback. Global ID: #{id} Database: #{@config[:host]} #{@config[:database]}"
       end_xa_transaction id if @xa_state == :begin
       if @xa_state == :end
-        Rails.logger.info "XATransaction - Before rollback. Global ID: #{id} Database: #{@config[:host]} #{@config[:database]}"
         @xa_state = :before_rollback
         execute "XA ROLLBACK '#{id}'"
       end 

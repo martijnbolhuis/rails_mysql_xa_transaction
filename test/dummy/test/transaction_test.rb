@@ -13,14 +13,14 @@ class TransactionTest < ActiveSupport::TestCase
     @air_france_ticket = create_air_france_ticket
   end
 
-  test "Normal XA transaction should be succesful" do
+  test "Normal XA transaction should be successful" do
     start_and_check_mysql
     @result = XATransactionCoordinator.XATransaction [KlmTicket, AirFranceTicket] do
       @klm_ticket.save!
       @air_france_ticket.save!
     end
-    # The result should be true if the transaction is succesful
-    assert_succesful_transaction
+    # The result should be true if the transaction is successful
+    assert_successful_transaction
   end
 
   test "MySQL is shutdown before transaction" do
@@ -65,7 +65,34 @@ class TransactionTest < ActiveSupport::TestCase
 
   end
 
+  # =====
 
+  test "MySQL is killed before transaction" do
+    crash_and_check_mysql
+    @result = XATransactionCoordinator.XATransaction [KlmTicket, AirFranceTicket] do
+      @klm_ticket.save!
+      @air_france_ticket.save!
+    end
+    start_and_check_mysql
+    # The followin command will reopen the database connection
+    ActiveRecord::Base.verify_active_connections!
+    assert_failed_transaction
+  end
 
+  test "MySQL is killed during the transaction" do
+    start_and_check_mysql
+
+      @result = XATransactionCoordinator.XATransaction [KlmTicket, AirFranceTicket] do
+        @klm_ticket.save!
+        crash_and_check_mysql
+        @air_france_ticket.save!
+      end
+
+    start_and_check_mysql
+    # The followin command will reopen the database connection
+    ActiveRecord::Base.verify_active_connections!
+    # debugger
+    assert_failed_transaction
+  end
 
 end
